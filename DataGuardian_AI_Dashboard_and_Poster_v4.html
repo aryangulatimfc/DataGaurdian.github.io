@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataGuardian AI – Dashboard & Research Poster</title>
+<style>
+:root{--navy:#0b2341;--green:#00a758;--lg:#e6f6ee;--grey:#f4f6f8;--red:#d93025;--amber:#f2a900;--text:#1f2a37;--muted:#5b6675}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",Arial,sans-serif;background:var(--grey);color:var(--text)}
+header{background:var(--navy);color:#fff;padding:18px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+header h1{font-size:22px}header h1 span{color:var(--green)}
+header p{font-size:13px;opacity:.8}
+nav button{background:transparent;border:1px solid #ffffff55;color:#fff;padding:8px 16px;margin-left:6px;border-radius:6px;cursor:pointer;font-size:14px}
+nav button.active{background:var(--green);border-color:var(--green)}
+.page{display:none;padding:24px 32px;max-width:1400px;margin:auto}.page.active{display:block}
+.grid{display:grid;gap:18px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.card{background:#fff;border-radius:10px;padding:18px;box-shadow:0 1px 4px #0001}
+.card h2{font-size:16px;color:var(--navy);margin-bottom:10px;border-left:4px solid var(--green);padding-left:8px}
+.card p,.card li{font-size:14px;line-height:1.5}
+.card ul{padding-left:18px}
+.kpi{text-align:center}.kpi b{display:block;font-size:22px;color:var(--navy)}.kpi small{color:var(--muted)}
+.flow{display:flex;align-items:center;flex-wrap:wrap;gap:6px;justify-content:center}
+.step{background:var(--lg);border:2px solid var(--green);border-radius:8px;padding:10px 12px;font-size:13px;text-align:center;min-width:105px;transition:.3s}
+.step.on{background:var(--green);color:#fff;transform:scale(1.06)}
+.step.skip{opacity:.35}
+.arrow{color:var(--green);font-weight:bold;font-size:18px}
+.pipe{display:flex;justify-content:space-between;padding:8px 10px;border-radius:6px;margin-bottom:6px;background:var(--grey);font-size:14px}
+.ok{color:var(--green);font-weight:600}.fail{color:var(--red);font-weight:600}.run{color:var(--amber);font-weight:600}
+select,.btn{padding:8px 12px;border-radius:6px;border:1px solid #ccc;font-size:14px}
+.btn{background:var(--navy);color:#fff;border:none;cursor:pointer}.btn:hover{background:var(--green)}
+.btn.warn{background:#b3261e}.btn.warn:hover{background:#d93025}
+.btn.alt{background:#7b3fe4}.btn.alt:hover{background:#9a63f0}
+#log{background:#0b1726;color:#b8f5d0;font-family:Consolas,monospace;font-size:12.5px;height:240px;overflow:auto;padding:10px;border-radius:8px;white-space:pre-wrap}
+#result{font-size:14px;line-height:1.6}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:600;margin-right:6px}
+.t-high{background:#d6f5e3;color:#06733d}.t-low{background:#fdecea;color:var(--red)}.t-src{background:#e8f0fe;color:#1a56c4}
+table{width:100%;border-collapse:collapse;font-size:13.5px}th,td{border:1px solid #e1e5ea;padding:8px;text-align:left}th{background:var(--navy);color:#fff}
+.note{font-size:12px;color:var(--muted);margin-top:8px;font-style:italic}
+.track{background:var(--lg);border-left:5px solid var(--green);padding:10px 14px;border-radius:6px;margin-bottom:12px;font-size:14px}
+/* Poster */
+.poster{background:#fff;max-width:1250px;margin:auto;border:6px solid var(--navy);border-radius:6px}
+.p-head{background:var(--navy);color:#fff;padding:26px;text-align:center}
+.p-head h1{font-size:34px}.p-head h1 span{color:var(--green)}
+.p-head h3{font-weight:400;font-size:19px;margin-top:6px}
+.p-head .auth{font-size:15px;margin-top:12px}
+.p-head p{font-size:13.5px;margin-top:6px;opacity:.85}
+.p-body{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:18px}
+@media(max-width:900px){.p-body{grid-template-columns:1fr}}
+.p-sec{background:var(--grey);border-radius:8px;padding:14px}
+.p-sec h2{background:var(--green);color:#fff;font-size:15px;padding:6px 10px;border-radius:5px;margin-bottom:10px}
+.p-sec p,.p-sec li{font-size:13.5px;line-height:1.5}.p-sec ul{padding-left:18px}
+.p-wide{grid-column:span 3}@media(max-width:900px){.p-wide{grid-column:span 1}}
+.p-foot{background:var(--navy);color:#fff;text-align:center;padding:10px;font-size:13px}
+.print{float:right}
+/* Architecture */
+.arch-ctrl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.tg{font-size:13px;color:var(--muted);margin-left:auto}
+.arch-wrap{display:grid;grid-template-columns:3fr 1fr;gap:12px}
+@media(max-width:1000px){.arch-wrap{grid-template-columns:1fr}}
+#arch{width:100%;height:auto;background:#fff;border-radius:8px;border:1px solid #e1e5ea}
+.band{stroke-width:1.2}.b1{fill:#eef6fd;stroke:#9cc8ef}.b2{fill:#f7f4fc;stroke:#c9b8ea}.b3{fill:#ecf8f1;stroke:#93d6b0}.b4{fill:#fff8e6;stroke:#f1d48a}
+.sub{fill:none;stroke:#93d6b0;stroke-dasharray:5 4}
+.bandt{font-size:12px;font-weight:700;fill:#5b6675;letter-spacing:.5px}
+.subt{font-size:11px;font-weight:700;fill:#2e7d55}
+.edge{fill:none;stroke:#8a96a3;stroke-width:2;transition:stroke .3s}
+.edge.dash{stroke-dasharray:6 5}
+.edge.on{stroke:#00a758;stroke-width:3.5}
+.edge.bad{stroke:#d93025;stroke-width:3.5}
+.edge.alt{stroke:#7b3fe4;stroke-width:3.5}
+.elbl{font-size:10.5px;fill:#5b6675;paint-order:stroke;stroke:#fff;stroke-width:4px}
+.nolbl .elbl{display:none}
+.node{cursor:pointer}
+.node .box{fill:#fff;stroke:#c7d0da;stroke-width:1.5;transition:.25s}
+.node:hover .box{stroke:#0078d4;stroke-width:2.5}
+.node.on .box{stroke:#00a758;stroke-width:3.5;fill:#f0fbf5}
+.node.bad .box{stroke:#d93025;stroke-width:3.5;fill:#fdeeee}
+.node.alt .box{stroke:#7b3fe4;stroke-width:3.5;fill:#f5effe}
+.node.sel .box{stroke:#0b2341;stroke-width:3}
+.node .nt{font-size:12px;font-weight:700;fill:#0b2341;text-anchor:middle}
+.node .ns{font-size:10px;fill:#5b6675;text-anchor:middle}
+.arch-side{display:flex;flex-direction:column;gap:10px}
+.caption{background:#0b1726;color:#b8f5d0;font-family:Consolas,monospace;font-size:12.5px;padding:10px;border-radius:8px;min-height:110px;white-space:pre-wrap}
+.detail{background:#fff;border:1px solid #e1e5ea;border-radius:8px;padding:12px;font-size:13px;line-height:1.5;flex:1}
+.detail h3{font-size:15px;color:var(--navy);margin-bottom:6px}
+.detail .pill{display:inline-block;background:var(--lg);color:#06733d;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:600;margin-bottom:6px}
+.detail b{color:var(--navy)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:22px;height:4px;vertical-align:middle;margin-right:5px;border-radius:2px}
+.legend i.dash{background:repeating-linear-gradient(90deg,#8a96a3 0 5px,transparent 5px 9px)}
+@media print{header,.print,.arch-ctrl,.arch-side,.legend{display:none!important}.page{display:none!important}#poster{display:block!important;padding:0}body{background:#fff}.arch-wrap{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Data<span>Guardian</span> AI</h1><p>Evidence-grounded agentic AI for data-ingestion incident diagnosis · Research Poster (Work in Progress)</p></div>
+  <nav><button class="active" onclick="show('dash',this)">Dashboard</button><button onclick="show('how',this)">How It Works</button><button onclick="show('poster',this)">Research Poster</button></nav>
+</header>
+
+<!-- ================= DASHBOARD ================= -->
+<section id="dash" class="page active">
+  <div class="grid g4" style="margin-bottom:18px">
+    <div class="card kpi"><small>Track</small><b>Research Poster</b></div>
+    <div class="card kpi"><small>Maturity</small><b>Prototype</b></div>
+    <div class="card kpi"><small>Stage</small><b>In Progress</b></div>
+    <div class="card kpi"><small>Data used</small><b>Synthetic / Public</b></div>
+  </div>
+
+  <div class="card" style="margin-bottom:18px">
+    <h2>Why This Fits the Research Poster Track</h2>
+    <div class="track"><b>Research Poster:</b> Showcase experiments, prototypes, work in progress or emerging insights.</div>
+    <table>
+      <tr><th>Poster accepts</th><th>What DataGuardian AI brings</th><th>Status</th></tr>
+      <tr><td><b>Experiments</b></td><td>Compare LLM only, LLM + RAG and DataGuardian (runbook-first + RAG fallback) on controlled failure scenarios with known root causes</td><td><span class="run">● Designed</span></td></tr>
+      <tr><td><b>Prototypes</b></td><td>Working demo: failure → ServiceNow incident → runbook checks or RAG fallback → summary for L1 &amp; L2</td><td><span class="run">● In development</span></td></tr>
+      <tr><td><b>Work in progress</b></td><td>Prototype and evaluation are underway. No final results are claimed yet</td><td><span class="run">● In progress</span></td></tr>
+      <tr><td><b>Emerging insights</b></td><td>Reuse existing runbooks first, use code for exact checks, use RAG only when no runbook applies, keep humans in control</td><td><span class="ok">● Early lessons</span></td></tr>
+    </table>
+    <p class="note">The conference poster session covers research ideas, early findings, prototypes or lessons learned, with short 3–5 minute presentations.</p>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h2>Live Pipeline Monitor (Simulated)</h2>
+      <div id="pipes"></div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <select id="scenario">
+          <option value="schema">Column renamed (runbook found)</option>
+          <option value="param">Wrong pipeline parameter / env (runbook found)</option>
+          <option value="dup">Duplicate key (runbook found)</option>
+          <option value="dtype">Datatype change (no runbook → RAG)</option>
+          <option value="unknown">Unclear error (no runbook → RAG → escalate)</option>
+        </select>
+        <button class="btn" onclick="inject()">Inject Failure ▶</button>
+        <button class="btn" onclick="resetAll()">Reset</button>
+      </div>
+      <p class="note">Controlled simulation for demo purposes. Not connected to ServiceNow or any Manulife production system.</p>
+    </div>
+    <div class="card">
+      <h2>Agent Investigation Log</h2>
+      <div id="log">Waiting for incident...</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h2>Agent Workflow</h2>
+    <div class="flow">
+      <div class="step" id="s0">Failure<br>Detected</div><span class="arrow">→</span>
+      <div class="step" id="s1">ServiceNow<br>Incident</div><span class="arrow">→</span>
+      <div class="step" id="s2">Search<br>Runbooks</div><span class="arrow">→</span>
+      <div class="step" id="s3">Runbook<br>Checks</div><span class="arrow">→</span>
+      <div class="step" id="s4">RAG Fallback<br>(Azure OpenAI)</div><span class="arrow">→</span>
+      <div class="step" id="s5">Diagnosis<br>Summary</div><span class="arrow">→</span>
+      <div class="step" id="s6">L1 &amp; L2<br>Review</div>
+    </div>
+    <p class="note">RAG fallback runs only when no runbook matches the failure.</p>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h2>Summary for L1 &amp; L2 Team</h2>
+    <div id="result"><p style="color:var(--muted)">Inject a failure to see the evidence-backed summary.</p></div>
+  </div>
+</section>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section id="how" class="page">
+  <div class="grid g3">
+    <div class="card"><h2>What We Give It</h2><ul><li>Pipeline failure event and logs (ADF, Databricks)</li><li>ServiceNow incident</li><li>Existing runbooks (manual run and troubleshooting steps)</li><li>Source/target schemas and pipeline configuration</li><li>Knowledge base documentation for RAG fallback</li></ul></div>
+    <div class="card"><h2>How It Processes</h2><ul><li>A failure creates a <b>ServiceNow incident</b></li><li><b>LangGraph agent</b> searches runbooks for a match</li><li>If found: runs the <b>runbook checks</b> in Python (failed activity, parameters, environment paths, linked services, logs, output files)</li><li>If not found: <b>RAG with Azure OpenAI</b> over the knowledge base</li><li>Builds an evidence-backed summary</li></ul></div>
+    <div class="card"><h2>What We Get Back</h2><ul><li>Likely root cause</li><li>Evidence and source (runbook or knowledge base)</li><li>Recommended next step</li><li>Confidence level</li><li>Summary attached to the incident for <b>L1 &amp; L2 review</b>, reducing manual work for data engineers</li></ul></div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h2>Experiment Design: What We Compare</h2>
+    <table>
+      <tr><th>Approach</th><th>Inputs</th><th>Purpose</th></tr>
+      <tr><td>A. LLM only</td><td>Error message</td><td>Baseline</td></tr>
+      <tr><td>B. LLM + RAG</td><td>Error + retrieved documentation</td><td>Effect of grounding</td></tr>
+      <tr><td>C. DataGuardian (Agentic)</td><td>Incident + runbook checks + RAG fallback + orchestration + L1/L2 review</td><td>Proposed approach</td></tr>
+    </table>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h2>Evaluation Metrics</h2>
+    <table>
+      <tr><th>Metric</th><th>Question it answers</th><th>Status</th></tr>
+      <tr><td>Root-cause accuracy</td><td>Did it find the known injected cause?</td><td>Planned</td></tr>
+      <tr><td>Runbook match rate</td><td>How often does an existing runbook cover the failure?</td><td>Planned</td></tr>
+      <tr><td>Groundedness</td><td>Is the answer supported by the evidence?</td><td>Planned</td></tr>
+      <tr><td>L1/L2 usefulness</td><td>Can L1/L2 act on the summary without a data engineer?</td><td>Planned</td></tr>
+      <tr><td>Escalation behaviour</td><td>Does it escalate when evidence is weak?</td><td>Planned</td></tr>
+    </table>
+    <p class="note">Results will be added only after experiments are run. No figures are claimed yet.</p>
+  </div>
+</section>
+
+<!-- ================= POSTER ================= -->
+<section id="poster" class="page">
+  <button class="btn print" onclick="window.print()">🖨 Print / Save as PDF</button>
+  <div style="clear:both;height:10px"></div>
+  <div class="poster">
+    <div class="p-head">
+      <h1>Data<span>Guardian</span> AI</h1>
+      <h3>Evaluating Agentic AI for Evidence-Grounded Data-Ingestion Incident Diagnosis</h3>
+      <div class="auth">Aryan Gulati · Associate Data Engineer &nbsp;|&nbsp; Ashish Jayantibhai Kadavla · Senior Data Engineer</div>
+      <p>Manulife · Manulife AI Research Conference 2026 · Research Poster (Work in Progress)</p>
+    </div>
+    <div class="p-body">
+      <div class="p-sec"><h2>1. Problem</h2><p>When a data-ingestion pipeline fails, data engineers manually check logs, follow runbooks, compare schemas and configuration, and search documentation. Much of this first-level investigation is repetitive and keeps engineers away from build work.</p></div>
+      <div class="p-sec"><h2>2. Research Question</h2><p><b>Can an agentic AI that uses existing runbooks first, falls back to knowledge-based RAG, and grounds every finding in evidence give L1 &amp; L2 teams a reliable incident summary and reduce manual work for data engineers?</b></p></div>
+      <div class="p-sec"><h2>3. Objectives</h2><ul><li>Build a working prototype</li><li>Automate runbook checks from a ServiceNow incident</li><li>Use RAG with Azure OpenAI when no runbook applies</li><li>Measure accuracy, groundedness and L1/L2 usefulness</li></ul></div>
+
+      <div class="p-sec p-wide"><h2>4. Azure Reference Architecture (Interactive): Click any service · Play a flow</h2>
+        <div class="arch-ctrl">
+          <button class="btn" onclick="playFlow('normal')">▶ Normal ingestion</button>
+          <button class="btn warn" onclick="playFlow('runbook')">⚠ Failure: runbook found</button>
+          <button class="btn alt" onclick="playFlow('fallback')">⚠ Failure: no runbook → RAG</button>
+          <button class="btn" onclick="stepFlow()">⏭ Step-by-step</button>
+          <button class="btn" onclick="resetArch()">↺ Reset</button>
+          <label class="tg"><input type="checkbox" checked onchange="document.getElementById('arch').classList.toggle('nolbl',!this.checked)"> Show edge labels</label>
+        </div>
+        <div class="arch-wrap">
+          <svg id="arch" viewBox="0 0 1200 710" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#8a96a3"/></marker>
+              <marker id="ahOn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#00a758"/></marker>
+              <marker id="ahBad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#d93025"/></marker>
+              <marker id="ahAlt" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#7b3fe4"/></marker>
+              <filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity=".15"/></filter>
+            </defs>
+            <rect x="10" y="10" width="1180" height="58" rx="12" class="band b4"/><text x="24" y="30" class="bandt">🔐 SECURITY</text>
+            <rect x="10" y="78" width="1180" height="140" rx="12" class="band b1"/><text x="24" y="98" class="bandt">① DATA INGESTION · Azure</text>
+            <rect x="10" y="238" width="1180" height="128" rx="12" class="band b2"/><text x="24" y="258" class="bandt">② MONITORING, CONFIG &amp; INCIDENT MANAGEMENT</text>
+            <rect x="10" y="386" width="1180" height="314" rx="12" class="band b3"/><text x="24" y="406" class="bandt">③ AI INVESTIGATION · DataGuardian AI</text>
+            <rect x="640" y="412" width="300" height="118" rx="10" class="sub"/><text x="650" y="426" class="subt">PATH A · Runbook first</text>
+            <rect x="640" y="562" width="380" height="128" rx="10" class="sub"/><text x="650" y="576" class="subt">PATH B · No runbook → Knowledge RAG</text>
+            <g id="edges"></g><g id="elabels"></g><g id="nodes"></g>
+            <circle id="dot" r="7" fill="#00a758" stroke="#fff" stroke-width="2" style="display:none"/>
+          </svg>
+          <div class="arch-side">
+            <div id="caption" class="caption">Press a button to animate the flow, or click any service to see its role.</div>
+            <div id="detail" class="detail"><h3>Service details</h3><p style="color:var(--muted)">Click a service in the diagram.</p></div>
+          </div>
+        </div>
+        <div class="legend">
+          <span><i style="background:#00a758"></i> Active step</span>
+          <span><i style="background:#d93025"></i> Failure / incident</span>
+          <span><i style="background:#7b3fe4"></i> RAG fallback path</span>
+          <span><i class="dash"></i> Logs, secrets, read-only access</span>
+        </div>
+        <p class="note">Proposed reference architecture. The conference demo runs on synthetic/public data and doesn't connect to ServiceNow or production systems. Icons are simplified illustrations, not official artwork.</p>
+      </div>
+
+      <div class="p-sec"><h2>5. Methodology</h2><ul><li>Controlled failure scenarios: schema change, wrong parameter/environment, missing linked service, duplicate key, datatype change, unclear errors</li><li>Each scenario has a known root cause</li><li>Runbook path and RAG fallback path both tested</li><li>Three approaches scored against ground truth</li></ul></div>
+      <div class="p-sec"><h2>6. Data Sources</h2><ul><li>Synthetic pipeline events, logs and schemas</li><li>Public insurance claims dataset for demo ingestion</li><li>Sample runbooks modelled on standard manual-run and troubleshooting steps</li><li>Purpose-built knowledge base for RAG</li><li>No production customer data</li></ul></div>
+      <div class="p-sec"><h2>7. Evaluation</h2><table><tr><th>Metric</th><th>A</th><th>B</th><th>C</th></tr><tr><td>Root-cause accuracy</td><td>TBD</td><td>TBD</td><td>TBD</td></tr><tr><td>Groundedness</td><td>TBD</td><td>TBD</td><td>TBD</td></tr><tr><td>L1/L2 usefulness</td><td>TBD</td><td>TBD</td><td>TBD</td></tr><tr><td>Correct escalation</td><td>TBD</td><td>TBD</td><td>TBD</td></tr></table><p class="note">A = LLM only · B = LLM + RAG · C = DataGuardian. Results in progress.</p></div>
+
+      <div class="p-sec"><h2>8. Early Lessons</h2><ul><li>Existing runbooks are a strong, trusted first source</li><li>Use code, not the LLM, for exact checks</li><li>RAG is most useful when no runbook applies</li><li>Uncertain cases should escalate, not guess</li></ul></div>
+      <div class="p-sec"><h2>9. Potential Business Impact</h2><ul><li><b>Operational:</b> L1 &amp; L2 receive a ready summary on the incident</li><li><b>Productivity:</b> less manual first-level investigation for data engineers</li><li><b>Risk:</b> evidence-backed, human-approved actions</li></ul><p class="note">Impact to be validated; not yet quantified.</p></div>
+      <div class="p-sec"><h2>10. Responsible AI</h2><ul><li><b>Privacy:</b> synthetic/public data only</li><li><b>Governance:</b> no autonomous reruns or production changes</li><li><b>Model risk:</b> runbook-first, confidence gate, cited sources</li><li><b>Transparency:</b> evidence shown in every summary</li></ul></div>
+
+      <div class="p-sec p-wide"><h2>11. Next Steps</h2><p>Complete prototype → test runbook and RAG paths on controlled scenarios → share preliminary findings at the conference → explore a governed pilot with sanitized runbooks and ServiceNow incident data together with L1 &amp; L2 teams.</p></div>
+    </div>
+    <div class="p-foot">DataGuardian AI · AI does the first investigation; L1 &amp; L2 teams make the decision.</div>
+  </div>
+</section>
+
+<script>
+function show(id,b){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active')}
+
+/* ================= DASHBOARD SIMULATOR ================= */
+const pipes=['customer_ingestion','policy_ingestion','claims_ingestion','premium_ingestion'];
+function drawPipes(failed){document.getElementById('pipes').innerHTML=pipes.map(p=>`<div class="pipe"><span>${p}</span><span class="${p===failed?'fail':'ok'}">${p===failed?'● FAILED':'● Healthy'}</span></div>`).join('')}
+drawPipes();
+const S={
+ schema:{err:"Required column 'policy_id' not found",rb:"Pipeline manual-run & troubleshooting runbook",checks:["Failed activity: DatabricksNotebook","Source has policy_number, target expects policy_id","Pipeline parameters: valid"],cause:"Schema / mapping mismatch: source sends <b>policy_number</b> but target expects <b>policy_id</b>.",next:"Confirm the source-to-target mapping in pipeline config, then rerun per runbook after approval.",conf:"HIGH"},
+ param:{err:"Notebook path not found",rb:"Pipeline manual-run & troubleshooting runbook",checks:["Failed activity: DatabricksNotebook","Parameter env = 'qa' but notebook path points to dev","Linked services and datasets: reachable"],cause:"Environment parameter mismatch: notebook path does not match the <b>env</b> parameter.",next:"Correct the env parameter / notebook path and trigger a manual rerun as described in the runbook.",conf:"HIGH"},
+ dup:{err:"Primary key violation on claim_id",rb:"Data load troubleshooting runbook",checks:["Failed activity: DatabricksNotebook","Duplicate claim_id values: 38","Same file name loaded twice in landing"],cause:"Duplicate <b>claim_id</b> values, likely from a re-delivered file.",next:"Confirm duplicate delivery with source owner before dedup and rerun.",conf:"HIGH"},
+ dtype:{err:"Cannot cast 'claim_amount' to DECIMAL(18,2)",rb:null,doc:"data_quality_rules.md",checks:["Failed activity: DatabricksNotebook","Expected DECIMAL, observed STRING","Sample bad values: '4,500.00', 'N/A'"],cause:"Datatype mismatch: <b>claim_amount</b> arrived as STRING with non-numeric values.",next:"Quarantine affected rows and confirm with the source team whether the file format changed.",conf:"HIGH"},
+ unknown:{err:"Job terminated unexpectedly (exit code 1)",rb:null,doc:null,checks:["Failed activity: unknown","Schema check: passed","Parameters: valid"],cause:"Not enough evidence to identify a reliable root cause.",next:"Escalate to L2 / data engineer to review cluster and driver logs.",conf:"LOW"}
+};
+let timer=[];
+function resetAll(){timer.forEach(clearTimeout);timer=[];drawPipes();document.getElementById('log').textContent='Waiting for incident...';document.getElementById('result').innerHTML='<p style="color:var(--muted)">Inject a failure to see the evidence-backed summary.</p>';for(let i=0;i<7;i++)document.getElementById('s'+i).classList.remove('on','skip')}
+function inject(){resetAll();const k=document.getElementById('scenario').value,s=S[k],L=document.getElementById('log');drawPipes('claims_ingestion');
+ const t=()=>new Date().toLocaleTimeString();
+ const steps=[
+  [0,`[${t()}] EVENT claims_ingestion FAILED\n  error: ${s.err}`],
+  [1,`[${t()}] ServiceNow incident created: INC-DEMO-0001 (simulated)\n  assignment group: L1/L2 Data Support`],
+  [2,`[${t()}] Searching runbooks... ${s.rb?'MATCH: "'+s.rb+'"':'NO MATCHING RUNBOOK'}`],
+  [3,`[${t()}] Running ${s.rb?'runbook':'generic'} checks:\n  - `+s.checks.join('\n  - ')],
+  [4,s.rb?`[${t()}] RAG fallback skipped (runbook available).`:`[${t()}] RAG fallback: Azure AI Search + Azure OpenAI\n  ${s.doc?'retrieved: '+s.doc:'no relevant document found'}`],
+  [5,`[${t()}] Diagnosis built. Confidence: ${s.conf}`],
+  [6,`[${t()}] Summary attached to INC-DEMO-0001 for L1 & L2 review.\n  No rerun or change executed automatically.`]
+ ];
+ L.textContent='';
+ steps.forEach((st,i)=>timer.push(setTimeout(()=>{const el=document.getElementById('s'+st[0]);el.classList.add((st[0]===4&&s.rb)?'skip':'on');L.textContent+=(i?'\n\n':'')+st[1];L.scrollTop=L.scrollHeight;
+  if(i===6){const src=s.rb?'Source: Runbook':(s.doc?'Source: Knowledge base (RAG)':'Source: none found');
+   document.getElementById('result').innerHTML=`<p><b>Incident:</b> INC-DEMO-0001 (simulated) · claims_ingestion &nbsp;<span class="tag ${s.conf==='HIGH'?'t-high':'t-low'}">Confidence: ${s.conf}</span><span class="tag t-src">${src}</span></p><p><b>Likely root cause:</b> ${s.cause}</p><p><b>Evidence:</b></p><ul style="padding-left:18px">${s.checks.map(c=>'<li>'+c+'</li>').join('')}<li>${s.rb?'Runbook: '+s.rb:(s.doc?'Knowledge base: '+s.doc:'No runbook or document matched')}</li></ul><p><b>Recommended next step:</b> ${s.next}</p><p><b>Action:</b> 🔒 L1 &amp; L2 review required. DataGuardian does not rerun pipelines or change configuration.</p>`}
+ },i*900)));
+}
+
+/* ================= ARCHITECTURE DIAGRAM ================= */
+const IC={
+ mft:`<rect x="-18" y="-21" width="36" height="12" rx="2" fill="#5c6b7a"/><rect x="-18" y="-6" width="36" height="12" rx="2" fill="#5c6b7a"/><rect x="-18" y="9" width="36" height="12" rx="2" fill="#5c6b7a"/><circle cx="11" cy="-15" r="2" fill="#7ee2a8"/><circle cx="11" cy="0" r="2" fill="#7ee2a8"/><circle cx="11" cy="15" r="2" fill="#7ee2a8"/>`,
+ adf:`<rect x="-21" y="-21" width="42" height="42" rx="8" fill="#0078d4"/><path d="M-13 13V-2l7 5V-2l7 5V-12h5v25z" fill="#fff"/><path d="M-15 -14h10" stroke="#50e6ff" stroke-width="3" stroke-linecap="round"/>`,
+ stor:`<rect x="-22" y="-18" width="44" height="36" rx="4" fill="#0078d4"/><rect x="-17" y="-12" width="34" height="6" rx="1" fill="#fff"/><rect x="-17" y="-2" width="34" height="6" rx="1" fill="#50e6ff"/><rect x="-17" y="8" width="34" height="6" rx="1" fill="#fff"/>`,
+ dbx:`<path d="M0 6L-20 -4L0 -14L20 -4z" fill="#ff3621"/><path d="M-20 3L0 13L20 3" fill="none" stroke="#ff3621" stroke-width="4"/><path d="M-20 11L0 21L20 11" fill="none" stroke="#ff3621" stroke-width="4"/>`,
+ kv:`<circle r="20" fill="#0078d4"/><circle cx="-6" cy="0" r="7" fill="#ffb900"/><circle cx="-6" cy="0" r="2.5" fill="#0078d4"/><rect x="0" y="-2" width="16" height="4" fill="#ffb900"/><rect x="10" y="2" width="3" height="5" fill="#ffb900"/>`,
+ sql:`<path d="M-17 -12v24c0 5 34 5 34 0v-24" fill="#0072c6"/><ellipse cx="0" cy="-12" rx="17" ry="6" fill="#50a0e6"/><ellipse cx="0" cy="-12" rx="11" ry="3" fill="#cfe7fb"/>`,
+ mon:`<path d="M-20 10A20 20 0 0 1 20 10" fill="none" stroke="#0078d4" stroke-width="7"/><path d="M-20 10A20 20 0 0 1 -6 -9" fill="none" stroke="#00a758" stroke-width="7"/><line x1="0" y1="10" x2="10" y2="-6" stroke="#0b2341" stroke-width="3" stroke-linecap="round"/><circle cx="0" cy="10" r="4" fill="#0b2341"/>`,
+ snow:`<rect x="-21" y="-21" width="42" height="42" rx="8" fill="#293e40"/><circle r="11" fill="none" stroke="#62d84e" stroke-width="5"/><path d="M-4 -26h8l-4 7z" fill="#d93025"/>`,
+ agent:`<line x1="-12" y1="-10" x2="12" y2="-10" stroke="#7b3fe4" stroke-width="3"/><line x1="-12" y1="-10" x2="0" y2="12" stroke="#7b3fe4" stroke-width="3"/><line x1="12" y1="-10" x2="0" y2="12" stroke="#7b3fe4" stroke-width="3"/><circle cx="-12" cy="-10" r="7" fill="#7b3fe4"/><circle cx="12" cy="-10" r="7" fill="#a77bf0"/><circle cx="0" cy="12" r="8" fill="#00a758"/>`,
+ val:`<path d="M0 -21L17 -14V0c0 11-8 18-17 21C-9 18-17 11-17 0V-14z" fill="#00a758"/><path d="M-8 0l6 6l11-12" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`,
+ rb:`<path d="M-21 -16h16a5 5 0 0 1 5 4v30a5 5 0 0 0-5-3h-16z" fill="#0052cc"/><path d="M21 -16h-16a5 5 0 0 0-5 4v30a5 5 0 0 1 5-3h16z" fill="#2684ff"/><path d="M-16 -8h9M-16 -2h9M-16 4h9M7 -8h9M7 -2h9M7 4h9" stroke="#fff" stroke-width="2"/>`,
+ srch:`<path d="M-18 8a9 9 0 0 1 2-17a12 12 0 0 1 22-3a8 8 0 0 1 10 9a7 7 0 0 1-2 11z" fill="#0078d4"/><circle cx="2" cy="1" r="6" fill="none" stroke="#fff" stroke-width="3"/><line x1="6" y1="5" x2="12" y2="11" stroke="#fff" stroke-width="3" stroke-linecap="round"/>`,
+ aoai:`<polygon points="0,-21 18,-10 18,10 0,21 -18,10 -18,-10" fill="#1f2a37"/><circle r="9" fill="none" stroke="#fff" stroke-width="3"/><circle r="3" fill="#50e6ff"/>`,
+ team:`<circle cx="-9" cy="-10" r="7" fill="#0b2341"/><path d="M-22 18c0-11 6-16 13-16s13 5 13 16z" fill="#0b2341"/><circle cx="10" cy="-12" r="7" fill="#00a758"/><path d="M-2 18c0-12 5-17 12-17s12 5 12 17z" fill="#00a758"/>`,
+ user:`<circle cy="-11" r="8" fill="#0b2341"/><path d="M-16 20c0-13 7-19 16-19s16 6 16 19z" fill="#0b2341"/>`
+};
+const N={
+ mft:{x:95,y:150,t:"Source / MFT",s:"SFTP server",ic:"mft",svc:"Source system / MFT server",role:"Source files land here before Azure picks them up.",in:"Files from upstream systems",out:"Files collected by ADF",dg:"File name, arrival time and size become evidence."},
+ adf:{x:300,y:150,t:"Data Factory",s:"Orchestration",ic:"adf",svc:"Azure Data Factory",role:"Runs ingestion pipelines with parameters (factory, trigger, source, run ID, environment).",in:"Files, secrets, pipeline config",out:"Files in ADLS landing, run status, activity logs",dg:"The failed activity and error message from the ADF monitoring pane start every investigation."},
+ land:{x:510,y:150,t:"ADLS Gen2",s:"Landing container",ic:"stor",svc:"Azure Storage Account (ADLS Gen2), landing",role:"Holds raw files exactly as received.",in:"Files copied by ADF",out:"Files read by Databricks",dg:"The agent reads the incoming file schema here (read-only) and checks output files exist."},
+ dbx:{x:720,y:150,t:"Databricks",s:"Transform / validate",ic:"dbx",svc:"Azure Databricks",role:"Decrypts/parses files, applies schema and data-quality rules, writes to raw/curated.",in:"Landing files, secrets",out:"Delta tables, notebook logs",dg:"Most data failures surface here. Notebook logs and notebook paths per environment are runbook checks."},
+ raw:{x:930,y:150,t:"ADLS Gen2",s:"Raw / curated",ic:"stor",svc:"Azure Storage Account (ADLS Gen2), raw/curated",role:"Stores validated, structured data.",in:"Delta tables from Databricks",out:"Data for analytics",dg:"Output files here confirm successful data movement."},
+ cons:{x:1110,y:150,t:"Consumers",s:"Analytics / BI",ic:"user",svc:"Downstream consumers",role:"Reports and business teams that rely on the data.",in:"Curated data",out:"Insights",dg:"Who is affected when ingestion fails."},
+ kv:{x:615,y:39,t:"Key Vault",s:"Secrets / keys",ic:"kv",svc:"Azure Key Vault",role:"Stores secrets, connection strings and private keys securely.",in:"Secrets managed by admins",out:"Secrets referenced at runtime",dg:"DataGuardian never reads secret values. It can only report access failures as evidence."},
+ sql:{x:300,y:305,t:"Metadata DB",s:"Pipeline config",ic:"sql",svc:"Metadata / config tables",role:"Metadata-driven framework: mappings, triggers, expected schemas, parameters.",in:"Config maintained by engineers",out:"Config read by ADF",dg:"Agent reads expected config and parameters (read-only) to spot mismatches."},
+ mon:{x:720,y:305,t:"Azure Monitor",s:"Logs / alerts",ic:"mon",svc:"Azure Monitor / Log Analytics",role:"Collects pipeline and job logs and raises failure alerts.",in:"Logs from ADF and Databricks",out:"Failure alert to ServiceNow",dg:"The alert that starts the whole process."},
+ snow:{x:1110,y:305,t:"ServiceNow",s:"Incident (INC)",ic:"snow",svc:"ServiceNow incident management",role:"A failure alert automatically creates an incident, assigned to the L1 & L2 support team.",in:"Failure alert with pipeline, run ID and error",out:"Incident passed to DataGuardian; summary written back",dg:"Puts the AI investigation inside the existing support process, so the summary lands where L1 & L2 already work."},
+ agent:{x:470,y:480,t:"DataGuardian Agent",s:"LangGraph",ic:"agent",svc:"DataGuardian AI agent (LangGraph)",role:"Reads the incident, searches runbooks, runs checks, falls back to RAG if needed, builds the summary.",in:"ServiceNow incident + logs",out:"Evidence-backed summary",dg:"Routing logic: runbook found → Path A; no runbook → Path B."},
+ val:{x:200,y:480,t:"Runbook Checks",s:"Python · deterministic",ic:"val",svc:"Automated runbook checks (Python)",role:"Turns runbook steps into automatic checks: failed activity, pipeline parameters, environment notebook paths, linked services and datasets, Databricks logs, output files in ADLS, schema differences.",in:"Steps from the matched runbook",out:"Facts (pass/fail, values)",dg:"Facts come from code, not the LLM. This is the manual work removed from data engineers."},
+ rb:{x:760,y:470,t:"Runbook KB",s:"Existing runbooks",ic:"rb",svc:"Runbook knowledge base",role:"Existing runbooks: manual-run instructions, required parameters, troubleshooting and rerun steps.",in:"Search by pipeline name + error",out:"Matching runbook and its steps",dg:"Path A: trusted, team-approved steps are used first."},
+ srch:{x:740,y:630,t:"Azure AI Search",s:"Knowledge base RAG",ic:"srch",svc:"Azure AI Search (RAG)",role:"Indexes wider documentation, design docs and past incident notes.",in:"Query from agent when no runbook matches",out:"Relevant document chunks with sources",dg:"Path B: used only when no runbook covers the failure."},
+ aoai:{x:930,y:630,t:"Azure OpenAI",s:"LLM reasoning",ic:"aoai",svc:"Azure OpenAI (LLM)",role:"Reasons over check results and retrieved documents to explain the likely root cause.",in:"Facts + retrieved knowledge",out:"Root cause, next step, confidence",dg:"Explains and reasons. It's not used to compute facts."},
+ team:{x:1110,y:520,t:"L1 & L2 Team",s:"Human review",ic:"team",svc:"L1 & L2 support team (human in the loop)",role:"Reviews the summary on the incident and decides: rerun per runbook, fix, or escalate to a data engineer.",in:"Summary + evidence + source",out:"Decision and incident update",dg:"No automatic reruns or changes. Data engineers are only pulled in when really needed."}
+};
+const E=[
+ ["e1","mft","adf","copy files"],["e2","adf","land","land files"],["e3","land","dbx","read & transform"],["e4","dbx","raw","write delta"],["e5","raw","cons","serve data"],
+ ["e6","kv","adf","secrets",1],["e7","kv","dbx","keys",1],["e8","sql","adf","pipeline config",1],["e9","adf","mon","run logs",1],["e10","dbx","mon","job logs",1],
+ ["e11","mon","snow","failure alert"],
+ ["e12","snow","agent","create INC → agent",0,[800,395]],
+ ["e13","agent","sql","read config & params",1],
+ ["e14","agent","land","read schema / outputs",1,[520,330]],
+ ["e15","agent","rb","search runbooks"],
+ ["e16","agent","val","run runbook checks"],
+ ["e17","rb","team","Path A: summary"],
+ ["e18","rb","srch","no match",1],
+ ["e19","srch","aoai","retrieved knowledge"],
+ ["e20","aoai","team","Path B: diagnosis"],
+ ["e21","team","snow","update INC",1]
+];
+const FLOWS={
+ normal:[["e1","Files arrive on the MFT server and ADF copies them."],["e8","ADF reads pipeline config and parameters."],["e6","ADF pulls secrets from Key Vault."],["e2","Files land in the ADLS landing container."],["e3","Databricks reads and transforms the files."],["e4","Validated data is written to raw/curated."],["e5","Consumers use the data. ✅ Run succeeded."],["e10","Logs go to Azure Monitor. No alert."]],
+ runbook:[
+  ["e1","Files arrive and ADF copies them."],["e2","Files land in ADLS landing."],
+  ["e3","Databricks notebook runs...",{fail:"dbx"}],
+  ["e10","❌ Notebook activity failed. Logs sent to Azure Monitor.",{bad:1}],
+  ["e11","🚨 Azure Monitor alert creates a ServiceNow incident.",{bad:1}],
+  ["e12","Incident (INC) and logs passed to the DataGuardian agent."],
+  ["e15","Agent searches runbooks by pipeline + error → ✅ runbook found."],
+  ["e16","Runbook checks run automatically:\n- failed activity identified\n- pipeline parameters validated\n- notebook path matches environment\n- linked services & datasets reachable"],
+  ["e13","Expected config and parameters read from metadata (read-only)."],
+  ["e14","Output files / schema in ADLS checked (read-only)."],
+  ["e17","Path A: runbook-based summary (root cause, evidence, next step) for L1 & L2."],
+  ["e21","🔒 L1 & L2 review and update the incident. Data engineer not needed unless escalated."]
+ ],
+ fallback:[
+  ["e1","Files arrive and ADF copies them."],["e2","Files land in ADLS landing."],
+  ["e3","Databricks notebook runs...",{fail:"dbx"}],
+  ["e10","❌ Job failed with an error not seen before.",{bad:1}],
+  ["e11","🚨 Azure Monitor alert creates a ServiceNow incident.",{bad:1}],
+  ["e12","Incident (INC) and logs passed to the DataGuardian agent."],
+  ["e15","Agent searches runbooks → ✖ no matching runbook."],
+  ["e16","Generic checks still run (failed activity, parameters, schema)."],
+  ["e18","Path B: fall back to the knowledge base.",{alt:1}],
+  ["e19","Azure AI Search retrieves relevant docs → Azure OpenAI reasons over facts + docs.",{alt:1}],
+  ["e20","AI diagnosis with sources and confidence sent to L1 & L2.",{alt:1}],
+  ["e21","🔒 L1 & L2 review. Low confidence → escalate to data engineer."]
+ ]
+};
+const svgNS="http://www.w3.org/2000/svg";
+function hw(k){return k==='kv'?[95,22]:[58,48];}
+function cut(k,ux,uy){const [w,h]=hw(k);return Math.min(Math.abs(ux)>1e-6?w/Math.abs(ux):1e9,Math.abs(uy)>1e-6?h/Math.abs(uy):1e9)+6;}
+function pathFor(a,b,c){const A=N[a],B=N[b],s=c||[B.x,B.y],e=c||[A.x,A.y];
+ let ux=s[0]-A.x,uy=s[1]-A.y,L=Math.hypot(ux,uy);ux/=L;uy/=L;let vx=B.x-e[0],vy=B.y-e[1],M=Math.hypot(vx,vy);vx/=M;vy/=M;
+ const p1=[A.x+ux*cut(a,ux,uy),A.y+uy*cut(a,ux,uy)],p2=[B.x-vx*cut(b,vx,vy),B.y-vy*cut(b,vx,vy)];
+ if(c)return{d:`M${p1[0]} ${p1[1]}Q${c[0]} ${c[1]} ${p2[0]} ${p2[1]}`,lx:(p1[0]+2*c[0]+p2[0])/4,ly:(p1[1]+2*c[1]+p2[1])/4};
+ return{d:`M${p1[0]} ${p1[1]}L${p2[0]} ${p2[1]}`,lx:(p1[0]+p2[0])/2,ly:(p1[1]+p2[1])/2};}
+function buildArch(){const ge=document.getElementById('edges'),gl=document.getElementById('elabels'),gn=document.getElementById('nodes');
+ E.forEach(([id,a,b,l,dash,c])=>{const p=pathFor(a,b,c);const el=document.createElementNS(svgNS,'path');el.setAttribute('d',p.d);el.setAttribute('id',id);el.setAttribute('class','edge'+(dash?' dash':''));el.setAttribute('marker-end','url(#ah)');ge.appendChild(el);
+  const t=document.createElementNS(svgNS,'text');t.setAttribute('x',p.lx);t.setAttribute('y',p.ly-5);t.setAttribute('text-anchor','middle');t.setAttribute('class','elbl');t.textContent=l;gl.appendChild(t);});
+ Object.entries(N).forEach(([k,n])=>{const g=document.createElementNS(svgNS,'g');g.setAttribute('class','node');g.setAttribute('id','n_'+k);g.setAttribute('transform',`translate(${n.x},${n.y})`);
+  g.innerHTML=k==='kv'?`<rect class="box" x="-95" y="-22" width="190" height="44" rx="10" filter="url(#sh)"/><g transform="translate(-68,0) scale(.85)">${IC[n.ic]}</g><text class="nt" x="12" y="-2">${n.t}</text><text class="ns" x="12" y="13">${n.s}</text>`
+  :`<rect class="box" x="-58" y="-48" width="116" height="96" rx="12" filter="url(#sh)"/><g transform="translate(0,-14)">${IC[n.ic]}</g><text class="nt" y="24">${n.t}</text><text class="ns" y="38">${n.s}</text><title>${n.svc}</title>`;
+  g.onclick=()=>selectNode(k);gn.appendChild(g);});}
+function selectNode(k){const n=N[k];document.querySelectorAll('.node').forEach(x=>x.classList.remove('sel'));document.getElementById('n_'+k).classList.add('sel');
+ document.getElementById('detail').innerHTML=`<h3>${n.svc}</h3><span class="pill">${n.s}</span><p><b>Role:</b> ${n.role}</p><p><b>Input:</b> ${n.in}</p><p><b>Output:</b> ${n.out}</p><p><b>Why it matters:</b> ${n.dg}</p>`;}
+let AT=[],cur=null,idx=0;
+function resetArch(){AT.forEach(clearTimeout);AT=[];cur=null;idx=0;document.querySelectorAll('.edge').forEach(e=>{e.classList.remove('on','bad','alt');e.setAttribute('marker-end','url(#ah)')});document.querySelectorAll('.node').forEach(n=>n.classList.remove('on','bad','alt'));document.getElementById('dot').style.display='none';document.getElementById('caption').textContent='Press a button to animate the flow, or click any service to see its role.';}
+function runStep(flow,i,done){const [eid,txt,o={}]=flow[i];const e=E.find(x=>x[0]===eid);const path=document.getElementById(eid),dot=document.getElementById('dot');
+ const cls=o.bad?'bad':o.alt?'alt':'on',col=o.bad?'#d93025':o.alt?'#7b3fe4':'#00a758',mk=o.bad?'ahBad':o.alt?'ahAlt':'ahOn';
+ path.classList.add(cls);path.setAttribute('marker-end',`url(#${mk})`);
+ const src=document.getElementById('n_'+e[1]);if(!src.classList.contains('bad'))src.classList.add(o.alt?'alt':'on');
+ document.getElementById('caption').textContent=`Step ${i+1}/${flow.length}\n${txt}`;
+ dot.style.display='block';dot.setAttribute('fill',col);
+ const L=path.getTotalLength(),t0=performance.now(),dur=850;
+ (function anim(t){const p=Math.min((t-t0)/dur,1),pt=path.getPointAtLength(L*p);dot.setAttribute('cx',pt.x);dot.setAttribute('cy',pt.y);
+  if(p<1)requestAnimationFrame(anim);else{dot.style.display='none';const tgt=document.getElementById('n_'+e[2]);
+   if(o.fail){tgt.classList.add('bad');document.getElementById('caption').textContent=`Step ${i+1}/${flow.length}\n❌ Databricks notebook activity FAILED.`;}
+   else if(o.bad&&e[2]==='snow')tgt.classList.add('bad');
+   else if(!tgt.classList.contains('bad'))tgt.classList.add(o.alt?'alt':'on');
+   selectNode(e[2]);done&&done();}})(t0);}
+function playFlow(f){resetArch();cur=f;const fl=FLOWS[f];
+ const go=i=>{if(i>=fl.length){if(f!=='normal')document.getElementById('caption').textContent+='\n\n✔ Investigation complete. Summary on the incident for L1 & L2.';return;}runStep(fl,i,()=>AT.push(setTimeout(()=>go(i+1),900)));};go(0);}
+function stepFlow(){if(!cur){resetArch();cur='runbook';idx=0;}const fl=FLOWS[cur];if(idx>=fl.length){document.getElementById('caption').textContent+='\n\n(End of flow. Press Reset.)';return;}runStep(fl,idx++);}
+buildArch();
+</script>
+</body>
+</html>
